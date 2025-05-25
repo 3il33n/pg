@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCP基金会 - Site-54 人员数据库</title>
+  <style>
+    body {
+      font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace;
+      background-color: #eee;
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 4px solid #cc0000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .header img {
+      height: 80px;
+      margin-right: 20px;
+    }
+
+    .header-text h2 {
+      margin: 0;
+      font-size: 24px;
+      color: #fff;
+    }
+
+    .warning {
+      color: #ff5500;
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .search-box {
+      background-color: #222;
+      padding: 20px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+    }
+
+    .search-box h3 {
+      margin-top: 0;
+      color: #cc0000;
+    }
+
+    input, select, button {
+      padding: 10px;
+      margin: 10px 10px 10px 0;
+      border-radius: 4px;
+      border: 1px solid #444;
+      background-color: #111;
+      color: #eee;
+    }
+
+    input::placeholder {
+      color: #aaa;
+    }
+
+    button {
+      background-color: #cc0000;
+      border: none;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #aa0000;
+    }
+
+    .results {
+      background-color: #1a1a1a;
+      padding: 20px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+
+    .personnel-card {
+      background-color: #111;
+      border-left: 5px solid #cc0000;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(255, 0, 0, 0.1);
+    }
+
+    .clearance {
+      color: #ff4444;
+      font-weight: bold;
+    }
+
+    .d-class {
+      color: #ff9900;
+    }
+
+    .researcher {
+      color: #33bbff;
+    }
+
+    .mtf {
+      color: #00cc99;
+    }
+
+    .traitor {
+      color: #800000;
+    }
+
+    .SCP {
+      color: #ff4444;
+    }
+
+    .admin {
+      color: #cc66ff;
+
+    }
+    .AI {
+      color: #7FFF00;
+    }
+
+    .footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 12px;
+      color: #333;
+      border-top: 1px solid #333;
+      padding: 20px 0;
+    }
+
+    ::selection {
+      background-color: #cc0000;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="logo.png" alt="SCP基金会标志">
+    <div class="header-text">
+      <h2>SCP基金会 Site-PG-54 人员数据库</h2>
+      <p class="warning">⚠️ 警告: 未经授权的访问将导致立即终止</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="search-box">
+      <h3>人员查询</h3>
+      <input type="text" id="searchInput" placeholder="输入人员ID或姓名">
+      <select id="clearanceFilter">
+        <option value="">所有权限等级</option>
+        <option value="D">D级人员</option>
+        <option value="1">1级</option>
+        <option value="2">2级</option>
+        <option value="3">3级</option>
+        <option value="4">4级</option>
+        <option value="5">5级</option>
+      </select>
+      <select id="roleFilter">
+        <option value="">所有角色</option>
+        <option value="D-Class">D级人员</option>
+        <option value="研究员">研究员</option>
+        <option value="Security">安保人员</option>
+        <option value="MTF">机动特遣队</option>
+        <option value="traitor">叛逃</option>
+        <option value="SCP">SCP</option>
+        <option value="Admin">管理人员</option>
+        <option value="AI">AI</option>
+      </select>
+      <button onclick="searchPersonnel()">查询</button>
+      <button onclick="resetSearch()">重置</button>
+    </div>
+
+    <div class="results" id="results">
+      <p>请输入查询条件并点击"查询"按钮。</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>© SCP基金会数据库 - 版本 3.1.9</p>
+    <p>控制，收容，保护</p>
+    <p>本数据库内容为机密信息，未经授权禁止访问。</p>
+    <p>本网站为粉丝创作，与SCP基金会无官方关联。</p>
+  <p>本项目使用内容基于 <a href="http://scp-wiki-cn.wikidot.com">SCP基金会中文站</a>，遵循 <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a> 协议。</p>
+  </div>
+
+  <script>
+    const personnelDatabase = [
+      {
+        id: "P-3189",
+        name: "大妖精",
+        clearance: "3",
+        role: "技术人员",
+        department: "负责设施技术支持",
+        status: "活跃",
+        notes: "无"
+      },
+      {
+        id: "P-1699",
+        name: "Dr. 3il33n",
+        clearance: "3",
+        role: "科研人员",
+        department: "异常项目研究",
+        status: "活跃",
+        notes: "无"
+      },
+      {
+        id: "P-1924",
+        name: "五四",
+        clearance: "5",
+        role: "设施主管",
+        department: "管理设施安全",
+        status: "活跃",
+        notes: "以霸道的行为方式著称。"
+      },
+      {
+        id: "P-4759",
+        name: "花青狐",
+        clearance: "3",
+        role: "技术人员",
+        department: "负责设施技术支持",
+        status: "活跃",
+        notes: "无"
+      },
+      {
+        id: "P-2950",
+        name: "稻谷",
+        clearance: "3",
+        role: "技术人员",
+        department: "负责设施技术支持",
+        status: "活跃",
+        notes: "无"
+      },
+      {
+        id: "AI",
+        name: "小早川",
+        clearance: "4",
+        role: "AI",
+        department: "人工智能",
+        status: "活跃",
+        notes: "Site-PG-54自研ai，用于管理设施。"
+      },
+      {
+        id: "D-14134",
+        name: "████ ███████",
+        clearance: "D",
+        role: "D-Class",
+        department: "测试对象",
+        status: "已终止",
+        notes: "参与SCP-087测试。在测试中失踪。"
+      },
+      {
+        id: "D-9341",
+        name: "██████ █████",
+        clearance: "D",
+        role: "D-Class",
+        department: "测试对象",
+        status: "已终止",
+        notes: "参与SCP-173、SCP-106和SCP-682测试。在收容失效后逃离设施。"
+      },
+      {
+        id: "Dr.",
+        name: "Jack Bright​",
+        clearance: "3",
+        role: "科研人员",
+        department: "异常项目研究",
+        status: "活跃",
+        notes: "多次违反安全协议，拥有“Bright博士不能做的事”列表（如禁止驾驶机甲、使用时间机器等）。"
+      },
+      {
+        id: "SCP-076-2",
+        name: "亚伯​",
+        clearance: "2",
+        role: "SCP",
+        department: "被收容",
+        status: "活跃",
+        notes: "曾短暂加入​​MTF Omega-7（“潘多拉之盒”），在任务中突然暴走，杀死包括指挥官在内的整支小队，迫使基金会处决他并重启收容。​​"
+      },
+      {
+        id: "<s>前特工</s>",
+        name: "<s>Ulgrin​</s>​",
+        clearance: "3",
+        role: "叛逃",
+        department: "前MTF Omega-12成员",
+        status: "未知",
+        notes: "拒绝执行基金会命令后叛逃，MTF Alpha-1（红右手）仍在追捕他​​"
+      },
+    ];
+
+    function searchPersonnel() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const clearanceFilter = document.getElementById('clearanceFilter').value;
+      const roleFilter = document.getElementById('roleFilter').value;
+
+      let results = personnelDatabase.filter(person => {
+        const matchesSearch = person.id.toLowerCase().includes(searchTerm) || person.name.toLowerCase().includes(searchTerm);
+        const matchesClearance = clearanceFilter === '' || person.clearance === clearanceFilter;
+        const matchesRole = roleFilter === '' || person.role === roleFilter;
+        return matchesSearch && matchesClearance && matchesRole;
+      });
+
+      displayResults(results);
+    }
+
+    function resetSearch() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearanceFilter').value = '';
+      document.getElementById('roleFilter').value = '';
+      document.getElementById('results').innerHTML = '<p>请输入查询条件并点击"查询"按钮。</p>';
+    }
+
+    function displayResults(results) {
+      const resultsDiv = document.getElementById('results');
+      if (results.length === 0) {
+        resultsDiv.innerHTML = '<p>未找到匹配的人员记录。</p>';
+        return;
+      }
+
+      let html = '';
+      results.forEach(person => {
+        let roleClass = '';
+        if (person.role === 'D-Class') roleClass = 'd-class';
+        else if (person.role === '科研人员') roleClass = 'researcher';
+        else if (person.role === '设施主管') roleClass = 'admin';
+        else if (person.role === 'AI') roleClass = 'AI';
+        else if (person.role === 'MTF') roleClass = 'mtf';
+        else if (person.role === '叛逃') roleClass = 'traitor';
+        else if (person.role === 'SCP') roleClass = 'SCP';
+        else if (person.role === '技术人员') roleClass = 'admin';
+
+        html += `
+          <div class="personnel-card">
+            <h3><span class="${roleClass}">${person.id}</span> - ${person.name}</h3>
+            <p><strong>权限等级:</strong> <span class="clearance">${person.clearance}</span></p>
+            <p><strong>角色:</strong> ${person.role}</p>
+            <p><strong>部门:</strong> ${person.department}</p>
+            <p><strong>状态:</strong> ${person.status}</p>
+            <p><strong>备注:</strong> ${person.notes}</p>
+          </div>
+        `;
+      });
+
+      resultsDiv.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
